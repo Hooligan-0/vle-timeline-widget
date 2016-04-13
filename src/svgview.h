@@ -10,6 +10,7 @@
 
 #include <QGraphicsView>
 #include <QSvgRenderer>
+#include <QtXml>
 #include <QWheelEvent>
 #include "vlePlan.h"
 
@@ -22,23 +23,31 @@ class SvgView: public QGraphicsView
     Q_OBJECT
 
 public:
-    enum RendererType { Native, OpenGL, Image };
     SvgView(QWidget *parent = 0);
-    void loadPlan(const vlePlan &plan);
-    void openFile(QString fileName);
     void convert (const QString &xsltFile);
+    QString getTplHeader(void);
+    QString getTplTask  (void);
+    void loadPlan(vlePlan &plan);
+    void loadFile(QString fileName);
+    bool loadTemplate(QString fileName);
+    void refresh(void);
+private:
+    void updateField(QDomNode    &e, QString tag, QString value);
+    void updatePos  (QDomElement &e, int x, int y);
 protected:
     void wheelEvent(QWheelEvent* event);
 private:
-    RendererType       mRenderer;
-    QGraphicsItem     *m_svgItem;
-    QGraphicsRectItem *m_backgroundItem;
-    QGraphicsRectItem *m_outlineItem;
+    // Widget variables
+    QGraphicsItem *mGraphicItem;
+    QSvgRenderer  *mSvgRenderer;
+    // SVG template variables
+    QDomDocument   mTplDocument;
+    QDomElement    mTplRoot;
+    QDomElement    mTplHeader;
+    QDomElement    mTplTask;
 
+    // Debug and temporary
     QString       mFilename;
-    QImage m_image;
-
-    QSvgRenderer *m_svgRenderer;
 };
 
 #endif // SVGVIEW_H

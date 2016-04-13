@@ -35,9 +35,14 @@ void MainWindow::buttonConvert(bool c)
 {
     (void)c;
 
-    QMessageBox msgBox;
-    msgBox.setText("Not implemented yet !");
-    msgBox.exec();
+    if (mPlan.isValid())
+        ui->svgUi->loadPlan(mPlan);
+    else
+    {
+        QMessageBox msg;
+        msg.setText("Plan not loaded, please specify a CSV");
+        msg.exec();
+    }
 }
 
 void MainWindow::buttonLoadCSV(bool c)
@@ -62,74 +67,27 @@ void MainWindow::buttonLoadCSV(bool c)
     }
 }
 
-void MainWindow::loadSVGTemplate(QString &filename)
-{
-    QFile file(filename);
-
-    // Read SVG file as pure XML
-    file.open(QIODevice::ReadOnly);
-    QDomDocument xmlContent;
-    xmlContent.setContent(&file);
-    file.close();
-
-    // Sanity check
-    QDomElement e = xmlContent.documentElement();
-    if (e.nodeName() != "svg")
-        return;
-
-    // Parse XML, search VLE templates
-    for(QDomElement n = e.firstChildElement(); !n.isNull(); n = n.nextSiblingElement())
-    {
-        // Only "svg groups" are relevant
-        if (n.nodeName() != "g")
-            continue;
-
-        if ( n.hasAttribute("vle:template") )
-        {
-            QString str;
-            QTextStream stream(&str);
-
-            QString tplName = n.attribute("vle:template");
-            if (tplName == "")
-                continue;
-
-            // Convert XML element to text
-            n.save(stream, QDomNode::CDATASectionNode);
-
-            if (tplName == "header")
-            {
-                // Dump this text to ui text-box
-                ui->svgEditHeader->appendPlainText(str);
-                ui->svgEditHeader->moveCursor(QTextCursor::Start);
-            }
-            else if (tplName == "task")
-            {
-                // Dump this text to ui text-box
-                ui->svgEditTask->appendPlainText(str);
-                ui->svgEditTask->moveCursor(QTextCursor::Start);
-            }
-        }
-        else
-            qWarning() << "SVG group with no template : " << n.attribute("id");
-    }
-
-    // DEBUG
-    ui->svgUi->openFile(filename);
-}
-
 void MainWindow::buttonLoadSVG(bool c)
 {
     QString fileName;
     (void)c;
 
     // Show an "Open File" dialog
-    fileName = QFileDialog::getOpenFileName(this,
-             tr("Open SVG File"), "", tr("SVG Files (*.svg)"));
+    fileName = QFileDialog::getOpenFileName(this, tr("Open SVG File"), "", tr("SVG Files (*.svg)"));
     // Update filename text-box
     ui->tplFilename->setText(fileName);
 
     // If the selected file exists ...
     if (QFile(fileName).exists())
+    {
         // ... load it
-        loadSVGTemplate(fileName);
+        ui->svgUi->loadTemplate(fileName);
+
+        // Dump template header to ui text-box
+        ui->svgEditHeader->appendPlainText( ui->svgUi->getTplHeader() );
+        ui->svgEditHeader->moveCursor(QTextCursor::Start);
+        // Dump template task to ui text-box
+        ui->svgEditTask->appendPlainText( ui->svgUi->getTplTask() );
+        ui->svgEditTask->moveCursor(QTextCursor::Start);
+    }
 }

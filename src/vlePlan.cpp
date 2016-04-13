@@ -12,6 +12,7 @@
 
 vlePlan::vlePlan()
 {
+    mValid = false;
     mGroups.clear();
 }
 
@@ -20,6 +21,8 @@ void vlePlan::clear(void)
     // Delete all known groups
     while ( ! mGroups.isEmpty())
         delete mGroups.takeFirst();
+    // Mark current plan as invalid
+    mValid = false;
 }
 
 int vlePlan::countGroups(void)
@@ -82,6 +85,11 @@ void vlePlan::loadFile(const QString &filename)
         lineCount++;
     }
     file.close();
+
+    // If (at least) one group has been loaded ...
+    if (countGroups() > 0)
+        // ... then, Plan is now valid
+        mValid = true;
 }
 
 vlePlanGroup *vlePlan::getGroup(QString name, bool create)
@@ -103,6 +111,19 @@ vlePlanGroup *vlePlan::getGroup(QString name, bool create)
         mGroups.push_back(ret);
     }
     return ret;
+}
+
+vlePlanGroup *vlePlan::getGroup(int pos)
+{
+    if (pos > mGroups.count())
+        return NULL;
+
+    return mGroups.at(pos);
+}
+
+bool vlePlan::isValid(void)
+{
+    return mValid;
 }
 
 // ******************** Activities ******************** //

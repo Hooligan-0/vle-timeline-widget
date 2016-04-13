@@ -47,9 +47,12 @@ public:
     void clear(void);
     void loadFile(const QString &filename);
     vlePlanGroup *getGroup(QString name, bool create = false);
+    vlePlanGroup *getGroup(int pos);
     int  countGroups(void);
     int  countActivities(void);
+    bool isValid(void);
 private:
+    bool mValid;
     QList<vlePlanGroup *> mGroups;
 };
 

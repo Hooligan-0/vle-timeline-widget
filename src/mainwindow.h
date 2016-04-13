@@ -27,8 +27,6 @@ private slots:
     void buttonLoadCSV(bool c);
     void buttonLoadSVG(bool c);
     void buttonConvert(bool c);
-private:
-    void loadSVGTemplate(QString &filename);
 
 private:
     Ui::MainWindow *ui;
