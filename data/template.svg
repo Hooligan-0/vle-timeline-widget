@@ -76,6 +76,7 @@
      inkscape:label="Task"
      inkscape:groupmode="layer"
      id="taskTemplate"
+     
      vle:template="task">
     <g
        id="g4217"
@@ -86,6 +87,7 @@
          height="30.0"
          width="100.0"
          id="rect4219"
+         vle:selector="activity_block"
          style="fill:#00edda;fill-opacity:1;stroke:#000000;stroke-width:0.187594;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
       <text
          xml:space="preserve"

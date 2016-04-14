@@ -32,7 +32,8 @@ public:
     bool loadTemplate(QString fileName);
     void refresh(void);
 private:
-    void updateField(QDomNode    &e, QString tag, QString value);
+    void updateAttr (QDomNode    &e, QString selector, QString attr, QString value);
+    void updateField(QDomNode    &e, QString tag,  QString value);
     void updatePos  (QDomElement &e, int x, int y);
 protected:
     void wheelEvent(QWheelEvent* event);

@@ -132,8 +132,16 @@ void SvgView::loadPlan(vlePlan &plan)
         {
             vlePlanActivity *planActivity = planGroup->getActivity(j);
 
+            QDate actStart = planActivity->dateStart();
+            QDate actEnd   = planActivity->dateEnd();
+
+            qreal actLength = (mPixelPerDay * actStart.daysTo(actEnd));
+            if (actLength < 1)
+                actLength = 1;
+
             QDomElement newAct = mTplTask.cloneNode().toElement();
             updateField(newAct, "{{name}}", planActivity->getName());
+            updateAttr (newAct, "activity_block", "width", QString::number(actLength));
 
             int date = dateStart.daysTo(planActivity->dateStart());
             int aPos = (date * mPixelPerDay);
@@ -253,6 +261,21 @@ void SvgView::wheelEvent(QWheelEvent* event)
         scale(scaleFactor, 1);
     else
         scale(1.0 / scaleFactor, 1);
+}
+
+void SvgView::updateAttr(QDomNode &node, QString selector, QString tag, QString value)
+{
+    if ( ! node.isElement())
+        return;
+
+    QDomElement e = node.toElement();
+
+    if (e.hasAttribute("vle:selector") && (e.attribute("vle:selector") == selector))
+        e.setAttribute(tag, value);
+
+    // Continue search across child nodes
+    for(QDomNode n = e.firstChild(); !n.isNull(); n = n.nextSibling())
+        updateAttr(n, selector, tag, value);
 }
 
 void SvgView::updateField(QDomNode &e, QString tag, QString value)
