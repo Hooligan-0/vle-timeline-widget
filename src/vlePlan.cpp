@@ -25,6 +25,68 @@ void vlePlan::clear(void)
     mValid = false;
 }
 
+QDate vlePlan::dateEnd(void)
+{
+    if ( mDateEnd.isValid() )
+        return mDateEnd;
+
+    QDate lastest;
+
+    for (int i = 0; i < mGroups.count(); i++)
+    {
+        vlePlanGroup *g = mGroups.at(i);
+
+        // If the reference is not already set
+        if ( ! lastest.isValid())
+        {
+            // Use the start date of this group as reference
+            lastest = g->dateEnd();
+            continue;
+        }
+
+        // If the end of this group is after the reference date
+        if (g->dateEnd() > lastest)
+            // Update to the lastest
+            lastest = g->dateEnd();
+    }
+
+    // Save the start date (cache)
+    mDateEnd = lastest;
+
+    return mDateEnd;
+}
+
+QDate vlePlan::dateStart(void)
+{
+    if ( mDateStart.isValid() )
+        return mDateStart;
+
+    QDate oldest;
+
+    for (int i = 0; i < mGroups.count(); i++)
+    {
+        vlePlanGroup *g = mGroups.at(i);
+
+        // If the reference is not already set
+        if ( ! oldest.isValid())
+        {
+            // Use the start date of this group as reference
+            oldest = g->dateStart();
+            continue;
+        }
+
+        // If the start of this group is before the reference date
+        if (g->dateStart() < oldest)
+            // Update to the oldest
+            oldest = g->dateStart();
+    }
+
+    // Save the start date (cache)
+    mDateStart = oldest;
+
+    return mDateStart;
+}
+
 int vlePlan::countGroups(void)
 {
     return mGroups.count();
@@ -109,6 +171,10 @@ vlePlanGroup *vlePlan::getGroup(QString name, bool create)
     {
         ret = new vlePlanGroup(name);
         mGroups.push_back(ret);
+
+        // Reset cache to NULL date
+        mDateEnd   = QDate();
+        mDateStart = QDate();
     }
     return ret;
 }
@@ -135,6 +201,16 @@ vlePlanActivity::vlePlanActivity(QString name)
 vlePlanActivity::~vlePlanActivity()
 {
     // Nothing to do
+}
+
+QDate vlePlanActivity::dateEnd(void)
+{
+    return mDateEnd;
+}
+
+QDate vlePlanActivity::dateStart(void)
+{
+    return mDateStart;
 }
 
 QString vlePlanActivity::getName(void)
@@ -171,6 +247,68 @@ vlePlanGroup::~vlePlanGroup()
         delete mActivities.takeFirst();
 }
 
+QDate vlePlanGroup::dateEnd(void)
+{
+    if ( mDateEnd.isValid() )
+        return mDateEnd;
+
+    QDate lastest;
+
+    for (int i = 0; i < mActivities.count(); i++)
+    {
+        vlePlanActivity *a = mActivities.at(i);
+
+        // If the reference is not already set
+        if ( ! lastest.isValid())
+        {
+            // Use the start date of this activity as reference
+            lastest = a->dateEnd();
+            continue;
+        }
+
+        // If the end of this activity is after the reference date
+        if (a->dateEnd() > lastest)
+            // Update to the lastest
+            lastest = a->dateEnd();
+    }
+
+    // Save the start date (cache)
+    mDateEnd = lastest;
+
+    return mDateEnd;
+}
+
+QDate vlePlanGroup::dateStart(void)
+{
+    if ( mDateStart.isValid() )
+        return mDateStart;
+
+    QDate oldest;
+
+    for (int i = 0; i < mActivities.count(); i++)
+    {
+        vlePlanActivity *a = mActivities.at(i);
+
+        // If the reference is not already set
+        if ( ! oldest.isValid())
+        {
+            // Use the start date of this activity as reference
+            oldest = a->dateStart();
+            continue;
+        }
+
+        // If the start of this activity is before the reference date
+        if (a->dateStart() < oldest)
+            // Update to the oldest
+            oldest = a->dateStart();
+    }
+
+    // Save the start date (cache)
+    mDateStart = oldest;
+
+    return mDateStart;
+}
+
 QString vlePlanGroup::getName(void)
 {
     return mName;
@@ -194,5 +332,17 @@ vlePlanActivity *vlePlanGroup::addActivity(QString name)
     // Insert it to the list of known activities
     mActivities.push_back(newAct);
 
+    // Reset cache to NULL date
+    mDateEnd   = QDate();
+    mDateStart = QDate();
+
     return newAct;
+}
+
+vlePlanActivity *vlePlanGroup::getActivity(int pos)
+{
+    if (pos > mActivities.count())
+        return NULL;
+
+    return mActivities.at(pos);
 }

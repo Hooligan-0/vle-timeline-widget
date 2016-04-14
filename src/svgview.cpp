@@ -35,6 +35,9 @@ SvgView::SvgView(QWidget *parent)
     tilePainter.end();
 
     setBackgroundBrush(tilePixmap);
+
+    // ToDo : this value must be updated accoding to the plan duration
+    mPixelPerDay = 1;
 }
 
 void SvgView::convert(const QString &xsltFile)
@@ -99,6 +102,23 @@ void SvgView::loadPlan(vlePlan &plan)
     e.setAttribute("viewBox", QString("0 0 %1 %2").arg(planWidth).arg(planHeight));
     e.setAttribute("version", "1.1");
 
+    QDate dateStart = plan.dateStart();
+    QDate dateEnd   = plan.dateEnd();
+    int nbDays = dateStart.daysTo(dateEnd);
+
+    // In the plan duration is more than 1500 days
+    if (nbDays > 1500)
+    {
+        // Update "pixel-per-day" to avoid very large picture
+        qreal widgetSize = 1500;
+        mPixelPerDay = (widgetSize / nbDays);
+    }
+
+    qInfo() << "Plan period is from" << dateStart.toString("dd/MM/yyyy")
+            << "to" << dateEnd.toString("dd/MM/yyyy")
+            << "(" << nbDays<< "days)"
+            << "[" << mPixelPerDay << "pixel per day]";
+
     for (int i=0; i < plan.countGroups(); i++)
     {
         vlePlanGroup *planGroup = plan.getGroup(i);
@@ -106,9 +126,21 @@ void SvgView::loadPlan(vlePlan &plan)
         // Create a new Group
         QDomElement newGrp = mTplHeader.cloneNode().toElement();
         updateField(newGrp, "{{name}}", planGroup->getName());
-        updatePos(newGrp, 0, (i * planHeight));
+        updatePos(newGrp, 0, (i * groupHeight));
 
-        // ToDo : here, add activities
+        for (int j = 0; j < planGroup->count(); j++)
+        {
+            vlePlanActivity *planActivity = planGroup->getActivity(j);
+
+            QDomElement newAct = mTplTask.cloneNode().toElement();
+            updateField(newAct, "{{name}}", planActivity->getName());
+
+            int date = dateStart.daysTo(planActivity->dateStart());
+            int aPos = (date * mPixelPerDay);
+
+            updatePos(newAct, aPos, 0);
+            newGrp.appendChild(newAct);
+        }
 
         e.appendChild(newGrp);
     }

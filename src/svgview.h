@@ -45,6 +45,8 @@ private:
     QDomElement    mTplRoot;
     QDomElement    mTplHeader;
     QDomElement    mTplTask;
+    //
+    qreal          mPixelPerDay;
 
     // Debug and temporary
     QString       mFilename;

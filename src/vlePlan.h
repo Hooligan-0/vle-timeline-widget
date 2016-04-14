@@ -16,6 +16,8 @@ class vlePlanActivity
 public:
     vlePlanActivity (QString name);
     ~vlePlanActivity();
+    QDate   dateEnd   (void);
+    QDate   dateStart (void);
     QString getName (void);
     void    setName (QString name);
     void    setStart(QDate  date);
@@ -31,11 +33,16 @@ class vlePlanGroup
 public:
     vlePlanGroup   (QString name);
     ~vlePlanGroup  ();
+    QDate   dateEnd  (void);
+    QDate   dateStart(void);
     QString getName(void);
     void    setName(QString name);
     int     count(void);
     vlePlanActivity *addActivity(QString name);
+    vlePlanActivity *getActivity(int pos);
 private:
+    QDate   mDateEnd;    // Cache for the lastest "end date" of group activities
+    QDate   mDateStart;  // Cache for the earliest "start date"of group activities
     QString mName;
     QList<vlePlanActivity *> mActivities;
 };
@@ -44,7 +51,9 @@ class vlePlan
 {
 public:
     vlePlan();
-    void clear(void);
+    void  clear(void);
+    QDate dateEnd  (void);
+    QDate dateStart(void);
     void loadFile(const QString &filename);
     vlePlanGroup *getGroup(QString name, bool create = false);
     vlePlanGroup *getGroup(int pos);
@@ -52,7 +61,9 @@ public:
     int  countActivities(void);
     bool isValid(void);
 private:
-    bool mValid;
+    bool  mValid;
+    QDate mDateEnd;    // Cache for the start date
+    QDate mDateStart;  // Cache for the end date
     QList<vlePlanGroup *> mGroups;
 };
 
