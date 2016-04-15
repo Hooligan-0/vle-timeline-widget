@@ -14,9 +14,18 @@
 #include <QWheelEvent>
 #include "vlePlan.h"
 
-class QWheelEvent;
-class QPaintEvent;
-class QFile;
+class SvgViewConfig
+{
+public:
+    SvgViewConfig() { }
+    QString getName(void)      { return mName; }
+    QString getKey (QString k) { return mConfig.value(k); }
+    void    setName(QString v) { mName = v; }
+    void    setKey (QString k, QString v) { mConfig.insert(k, v); }
+private:
+    QString mName;
+    QMap<QString, QString> mConfig;
+};
 
 class SvgView: public QGraphicsView
 {
@@ -27,12 +36,14 @@ public:
     void convert (const QString &xsltFile);
     QString getTplHeader(void);
     QString getTplTask  (void);
-    void loadPlan(vlePlan &plan);
+    void loadPlan(vlePlan *plan);
     void loadFile(QString fileName);
     bool loadTemplate(QString fileName);
-    void refresh(void);
+    void refresh (void);
+    void setConfig(QString c, QString key, QString value);
+    void setZommFactor(qreal factor);
 private:
-    void updateAttr (QDomNode    &e, QString selector, QString attr, QString value);
+    void updateAttr (QDomNode    &e, QString selector, QString attr, QString value, bool replace = true);
     void updateField(QDomNode    &e, QString tag,  QString value);
     void updatePos  (QDomElement &e, int x, int y);
 protected:
@@ -47,7 +58,12 @@ private:
     QDomElement    mTplHeader;
     QDomElement    mTplTask;
     //
+    vlePlan       *mPlan;
+    int            mMaxWidth;
     qreal          mPixelPerDay;
+    qreal          mZoomFactor;
+    qreal          mZoomLevel;
+    QList<SvgViewConfig *> mConfig;
 
     // Debug and temporary
     QString       mFilename;

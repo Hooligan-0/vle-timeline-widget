@@ -18,12 +18,15 @@ public:
     ~vlePlanActivity();
     QDate   dateEnd   (void);
     QDate   dateStart (void);
+    QString getClass(void);
     QString getName (void);
+    void    setClass(QString c);
     void    setName (QString name);
-    void    setStart(QDate  date);
-    void    setEnd  (QDate  date);
+    void    setStart(QDate   date);
+    void    setEnd  (QDate   date);
 private:
     QString mName;
+    QString mClass;
     QDate   mDateStart;
     QDate   mDateEnd;
 };

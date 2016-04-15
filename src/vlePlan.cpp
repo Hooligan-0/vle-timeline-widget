@@ -213,10 +213,21 @@ QDate vlePlanActivity::dateStart(void)
     return mDateStart;
 }
 
+QString vlePlanActivity::getClass(void)
+{
+    return mClass;
+}
+
 QString vlePlanActivity::getName(void)
 {
     return mName;
 }
+
+void vlePlanActivity::setClass(QString c)
+{
+    mClass = c;
+}
+
 void vlePlanActivity::setName(QString name)
 {
     mName = name;

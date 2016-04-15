@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    setWindowTitle("VLE plan Widget Unit-test");
 
     connect(ui->buttonSelectCSV, SIGNAL(clicked(bool)), this, SLOT (buttonLoadCSV(bool)));
     connect(ui->buttonSelectSVG, SIGNAL(clicked(bool)), this, SLOT (buttonLoadSVG(bool)));
@@ -36,7 +37,7 @@ void MainWindow::buttonConvert(bool c)
     (void)c;
 
     if (mPlan.isValid())
-        ui->svgUi->loadPlan(mPlan);
+        ui->svgUi->loadPlan(&mPlan);
     else
     {
         QMessageBox msg;
