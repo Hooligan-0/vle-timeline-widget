@@ -41,7 +41,8 @@ public:
     void loadFile(QString fileName);
     bool loadTemplate(QString fileName);
     void refresh (void);
-    void setConfig(QString c, QString key, QString value);
+    QString getConfig(QString c, QString key);
+    void    setConfig(QString c, QString key, QString value);
     void setZommFactor(qreal factor);
 private:
     void updateAttr (QDomNode    &e, QString selector, QString attr, QString value, bool replace = true);

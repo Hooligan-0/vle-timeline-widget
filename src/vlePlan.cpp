@@ -107,6 +107,7 @@ void vlePlan::loadFile(const QString &filename)
 {
     QFile file(filename);
     int lineCount;
+    bool hasClass = false;
 
     file.open(QIODevice::ReadOnly);
 
@@ -124,6 +125,8 @@ void vlePlan::loadFile(const QString &filename)
             // If the header line is malformed, abort file load
             if (fields.count() < 4)
                 break;
+            if (fields.count() > 4)
+                hasClass = true;
             // Clear current plan (if any previously loaded)
             clear();
             lineCount++;
@@ -136,12 +139,25 @@ void vlePlan::loadFile(const QString &filename)
         // Copy values into named strings (poor perf but usefull during dev)
         QString activityName( fields.at(0) );
         QString groupName   ( fields.at(1) );
-        QString startDate   ( fields.at(2) );
-        QString endDate     ( fields.at(3) );
+        QString type;
+        QString startDate;
+        QString endDate;
+        if (hasClass)
+        {
+            type      = fields.at(2);
+            startDate = fields.at(3);
+            endDate   = fields.at(4);
+        }
+        else
+        {
+            startDate = fields.at(2);
+            endDate   = fields.at(3);
+        }
 
         // Save the activity into the vlePlan
         vlePlanGroup    *g = getGroup(groupName, true);
         vlePlanActivity *a = g->addActivity(activityName);
+        a->setClass(type);
         a->setStart(QDate::fromString(startDate, Qt::ISODate));
         a->setEnd  (QDate::fromString(endDate,   Qt::ISODate));
 

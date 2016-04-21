@@ -151,10 +151,16 @@ void SvgView::loadPlan(vlePlan *plan)
             updateField(newAct, "{{name}}", planActivity->getName());
             updateAttr (newAct, "activity_block", "width", QString::number(actLength));
 
-            if (planActivity->getName().startsWith("Irrigation"))
-                updateAttr (newAct, "activity_block", "style", ";fill:#aa0000", false);
-            else
-                updateAttr (newAct, "activity_block", "style", ";fill:#00edda", false);
+            QString cfgColor("#00edda");
+            QString activityClass = planActivity->getClass();
+            if ( ! activityClass.isEmpty() )
+            {
+                QString cfg = getConfig("color", activityClass);
+                if ( ! cfg.isEmpty() )
+                    cfgColor = cfg;
+            }
+            QString fillStyle = QString(";fill:%1").arg(cfgColor);
+            updateAttr (newAct, "activity_block", "style", fillStyle, false);
 
             int date = dateStart.daysTo(planActivity->dateStart());
             int aPos = (date * mPixelPerDay * mZoomLevel);
@@ -266,7 +272,7 @@ void SvgView::refresh(void)
     //s->setSceneRect(0,0, 0,0);
 }
 
-void SvgView::setConfig(QString c, QString key, QString value)
+QString SvgView::getConfig(QString c, QString key)
 {
     SvgViewConfig *entry = NULL;
 
@@ -276,11 +282,30 @@ void SvgView::setConfig(QString c, QString key, QString value)
         if (entry->getName() == c)
             break;
     }
+    if (entry == NULL)
+        return QString();
+    return entry->getKey(key);
+}
+
+void SvgView::setConfig(QString c, QString key, QString value)
+{
+    SvgViewConfig *entry = NULL;
+    for (int i = 0; i < mConfig.count(); i++)
+    {
+        SvgViewConfig *e;
+        e = mConfig.at(i);
+        if (e->getName() == c)
+        {
+            entry = e;
+            break;
+        }
+    }
 
     if (entry == NULL)
     {
         entry = new SvgViewConfig();
         entry->setName(c);
+        mConfig.push_back(entry);
     }
     if ( ! value.isEmpty())
         entry->setKey(key, value);
