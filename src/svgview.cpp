@@ -282,7 +282,10 @@ void SvgView::setConfig(QString c, QString key, QString value)
         entry = new SvgViewConfig();
         entry->setName(c);
     }
-    entry->setKey(key, value);
+    if ( ! value.isEmpty())
+        entry->setKey(key, value);
+    else
+        entry->removeKey(key);
 }
 
 void SvgView::setZommFactor(qreal factor)

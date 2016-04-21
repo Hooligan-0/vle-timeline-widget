@@ -5,6 +5,7 @@
  *
  * Copyright (c) 2016 Agilack
  */
+#include <QColorDialog>
 #include <QFile>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -21,9 +22,18 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     setWindowTitle("VLE plan Widget Unit-test");
 
+    // Set some default color values
+    ui->svgUi->setConfig("color", "Irrigation", "#aa0000");
+
     connect(ui->buttonSelectCSV, SIGNAL(clicked(bool)), this, SLOT (buttonLoadCSV(bool)));
     connect(ui->buttonSelectSVG, SIGNAL(clicked(bool)), this, SLOT (buttonLoadSVG(bool)));
     connect(ui->buttonConvert,   SIGNAL(clicked(bool)), this, SLOT (buttonConvert(bool)));
+    // Configuration tab
+    connect(ui->cfgColorTable,   SIGNAL(itemSelectionChanged()), this, SLOT(cfgColorSelectionChange()));
+    connect(ui->cfgColorAdd,     SIGNAL(clicked()), this, SLOT (buttonCfgColorAdd()));
+    connect(ui->cfgColorRemove,  SIGNAL(clicked()), this, SLOT (buttonCfgColorRemove()));
+    connect(ui->cfgColorPicker,  SIGNAL(clicked()), this, SLOT (buttonCfgColorPicker()));
+    connect(ui->cfgColorSet,     SIGNAL(clicked()), this, SLOT (buttonCfgColorSet()));
 }
 
 MainWindow::~MainWindow()
@@ -91,4 +101,73 @@ void MainWindow::buttonLoadSVG(bool c)
         ui->svgEditTask->appendPlainText( ui->svgUi->getTplTask() );
         ui->svgEditTask->moveCursor(QTextCursor::Start);
     }
+}
+
+void MainWindow::cfgColorSelectionChange(void)
+{
+    if (ui->cfgColorTable->selectedItems().count() == 0)
+    {
+        ui->cfgColorSet->setEnabled(false);
+        ui->cfgColorActivityName->setText("");
+        ui->cfgColorActivityColor->setText("");
+        return;
+    }
+
+    QTableWidgetItem *name  = ui->cfgColorTable->selectedItems().at(0);
+    QTableWidgetItem *color = ui->cfgColorTable->selectedItems().at(1);
+
+    ui->cfgColorActivityName->setText (name->text() );
+    ui->cfgColorActivityColor->setText(color->text());
+    ui->cfgColorSet->setEnabled(true);
+}
+
+void MainWindow::buttonCfgColorAdd(void)
+{
+    int count = ui->cfgColorTable->rowCount();
+
+    QTableWidgetItem *newActivity = new QTableWidgetItem("NewActivity");
+    QTableWidgetItem *newColor    = new QTableWidgetItem("#000000");
+
+    ui->cfgColorTable->insertRow(count);
+
+    ui->cfgColorTable->setItem(count, 0, newActivity);
+    ui->cfgColorTable->setItem(count, 1, newColor);
+
+    ui->cfgColorTable->setCurrentItem(newActivity);
+}
+
+void MainWindow::buttonCfgColorRemove(void)
+{
+    if (ui->cfgColorTable->selectedItems().count() == 0)
+        return;
+    QTableWidgetItem *item = ui->cfgColorTable->selectedItems().at(0);
+    QString itemName = item->text();
+    ui->cfgColorTable->removeRow( item->row() );
+
+    ui->svgUi->setConfig("color", itemName, QString());
+}
+
+void MainWindow::buttonCfgColorPicker(void)
+{
+    QColor currentColor;
+
+    QString colorName = ui->cfgColorActivityColor->text();
+    currentColor.setNamedColor(colorName);
+
+    QColor color = QColorDialog::getColor(currentColor, this, tr("Activity color"));
+    ui->cfgColorActivityColor->setText( color.name() );
+}
+
+void MainWindow::buttonCfgColorSet(void)
+{
+    QTableWidgetItem *itemName  = ui->cfgColorTable->selectedItems().at(0);
+    QTableWidgetItem *itemColor = ui->cfgColorTable->selectedItems().at(1);
+
+    QString activityName  = ui->cfgColorActivityName->text();
+    QString activityColor = ui->cfgColorActivityColor->text();
+
+    itemName->setText ( activityName  );
+    itemColor->setText( activityColor );
+
+    ui->svgUi->setConfig("color", activityName, activityColor);
 }

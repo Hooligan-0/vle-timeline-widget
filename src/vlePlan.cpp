@@ -7,6 +7,7 @@
  */
 #include <QFile>
 #include <QString>
+#include <QStringList>
 #include <QDebug>
 #include "vlePlan.h"
 

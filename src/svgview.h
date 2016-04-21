@@ -22,6 +22,7 @@ public:
     QString getKey (QString k) { return mConfig.value(k); }
     void    setName(QString v) { mName = v; }
     void    setKey (QString k, QString v) { mConfig.insert(k, v); }
+    void removeKey (QString k) { mConfig.remove(k); }
 private:
     QString mName;
     QMap<QString, QString> mConfig;
