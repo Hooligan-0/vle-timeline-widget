@@ -75,6 +75,14 @@ QString SvgView::getTplTask(void)
     return str;
 }
 
+QString SvgView::getTplTime(void)
+{
+    QString str;
+    QTextStream stream(&str);
+    mTplTime.save(stream, QDomNode::EncodingFromTextStream);
+    return str;
+}
+
 void SvgView::loadPlan(vlePlan *plan)
 {
     qInfo() << "SvgView::loadPlan";
@@ -94,7 +102,7 @@ void SvgView::loadPlan(vlePlan *plan)
         groupHeight = 100;
 
     // Compute size of the whole plan
-    int planHeight = groupHeight * plan->countGroups();
+    int planHeight = groupHeight * (1 + plan->countGroups());
     int planWidth  = (mMaxWidth * mZoomLevel);
 
     // Create SVG document
@@ -126,6 +134,84 @@ void SvgView::loadPlan(vlePlan *plan)
             << "[" << mPixelPerDay << "pixel per day]";
     }
 
+    // First insert the time rule
+    QDomElement timeGrp = mTplHeader.cloneNode().toElement();
+    updateField(timeGrp, "{{name}}", "");
+    updatePos  (timeGrp, 0, 0);
+    updateAttr (timeGrp, "header_background", "width", QString::number(planWidth));
+    float yLen = (mPixelPerDay * 365 * mZoomLevel);
+    // Show Weeks
+    if (yLen > 2000)
+    {
+        QDate r;
+        if (dateStart.daysInMonth() == 1)
+            r.setDate(dateStart.year(), dateStart.month(), dateStart.day());
+        else
+            r.setDate(dateStart.year(), dateStart.month() + 1, 1);
+        while (r < dateEnd)
+        {
+            QDomElement newTimeStep = mTplTime.cloneNode().toElement();
+            if (yLen < 5000)
+                updateField(newTimeStep, "{{name}}", r.toString("dd/MM") );
+            else
+                updateField(newTimeStep, "{{name}}", r.toString("dd/MM/yy") );
+            updateAttr (newTimeStep, "step_block", "width", QString::number(4));
+
+            int offset = dateStart.daysTo(r);
+            int aPos = (offset * mPixelPerDay * mZoomLevel);
+            updatePos(newTimeStep, aPos, 0);
+            timeGrp.appendChild(newTimeStep);
+            r = r.addDays(7);
+        }
+    }
+    // Show month
+    else if (yLen > 500)
+    {
+        QDate r;
+        if (dateStart.daysInMonth() == 1)
+            r.setDate(dateStart.year(), dateStart.month(), dateStart.day());
+        else
+            r.setDate(dateStart.year(), dateStart.month() + 1, 1);
+        while (r < dateEnd)
+        {
+            QDomElement newTimeStep = mTplTime.cloneNode().toElement();
+            if (yLen < 1000)
+                updateField(newTimeStep, "{{name}}", r.toString("MMM") );
+            else
+                updateField(newTimeStep, "{{name}}", r.toString("MMM yy") );
+            updateAttr (newTimeStep, "step_block", "width", QString::number(4));
+
+            int offset = dateStart.daysTo(r);
+            int aPos = (offset * mPixelPerDay * mZoomLevel);
+            updatePos(newTimeStep, aPos, 0);
+            timeGrp.appendChild(newTimeStep);
+            r = r.addMonths(1);
+        }
+    }
+    // Show Year
+    else
+    {
+        QDate r;
+        if (dateStart.dayOfYear() == 1)
+            r.setDate(dateStart.year(), dateStart.month(), dateStart.day());
+        else
+            r.setDate(dateStart.year() + 1, 1, 1);
+        while (r < dateEnd)
+        {
+            QDomElement newTimeStep = mTplTime.cloneNode().toElement();
+            updateField(newTimeStep, "{{name}}", QString::number(r.year()) );
+            updateAttr (newTimeStep, "step_block", "width", QString::number(4));
+
+            int offset = dateStart.daysTo(r);
+            int aPos = (offset * mPixelPerDay * mZoomLevel);
+            updatePos(newTimeStep, aPos, 0);
+            timeGrp.appendChild(newTimeStep);
+            r = r.addYears(1);
+        }
+    }
+    e.appendChild(timeGrp);
+
+    // Insert all the known groups
     for (int i=0; i < plan->countGroups(); i++)
     {
         vlePlanGroup *planGroup = plan->getGroup(i);
@@ -133,7 +219,7 @@ void SvgView::loadPlan(vlePlan *plan)
         // Create a new Group
         QDomElement newGrp = mTplHeader.cloneNode().toElement();
         updateField(newGrp, "{{name}}", planGroup->getName());
-        updatePos  (newGrp, 0, (i * groupHeight));
+        updatePos  (newGrp, 0, ((i + 1) * groupHeight));
         updateAttr (newGrp, "header_background", "width", QString::number(planWidth));
 
         for (int j = 0; j < planGroup->count(); j++)
@@ -225,6 +311,10 @@ bool SvgView::loadTemplate(QString fileName)
     if (e.nodeName() != "svg")
         return false;
 
+    mTplHeader.clear();
+    mTplTask.clear();
+    mTplTime.clear();
+
     // Parse XML, search VLE templates
     for(QDomElement n = e.firstChildElement(); !n.isNull(); n = n.nextSiblingElement())
     {
@@ -242,6 +332,8 @@ bool SvgView::loadTemplate(QString fileName)
                 mTplHeader = n;
             else if (tplName == "task")
                 mTplTask = n;
+            else if (tplName == "time")
+                mTplTime = n;
         }
         else
             qWarning() << "SVG group with no template : " << n.attribute("id");

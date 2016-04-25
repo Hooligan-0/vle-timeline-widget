@@ -95,11 +95,17 @@ void MainWindow::buttonLoadSVG(bool c)
         ui->svgUi->loadTemplate(fileName);
 
         // Dump template header to ui text-box
+        ui->svgEditHeader->clear();
         ui->svgEditHeader->appendPlainText( ui->svgUi->getTplHeader() );
         ui->svgEditHeader->moveCursor(QTextCursor::Start);
         // Dump template task to ui text-box
+        ui->svgEditTask->clear();
         ui->svgEditTask->appendPlainText( ui->svgUi->getTplTask() );
         ui->svgEditTask->moveCursor(QTextCursor::Start);
+        // Dump template time to ui text-box
+        ui->svgEditTime->clear();
+        ui->svgEditTime->appendPlainText( ui->svgUi->getTplTime() );
+        ui->svgEditTime->moveCursor(QTextCursor::Start);
     }
 }
 

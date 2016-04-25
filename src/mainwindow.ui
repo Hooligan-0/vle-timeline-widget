@@ -211,6 +211,20 @@
                </item>
               </layout>
              </widget>
+             <widget class="QWidget" name="tabSVGTime">
+              <attribute name="title">
+               <string>TimeRule</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayout_10">
+               <item>
+                <widget class="QPlainTextEdit" name="svgEditTime">
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
             </widget>
            </item>
           </layout>
@@ -424,7 +438,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>27</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>

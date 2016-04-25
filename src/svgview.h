@@ -37,6 +37,7 @@ public:
     void convert (const QString &xsltFile);
     QString getTplHeader(void);
     QString getTplTask  (void);
+    QString getTplTime  (void);
     void loadPlan(vlePlan *plan);
     void loadFile(QString fileName);
     bool loadTemplate(QString fileName);
@@ -59,6 +60,7 @@ private:
     QDomElement    mTplRoot;
     QDomElement    mTplHeader;
     QDomElement    mTplTask;
+    QDomElement    mTplTime;
     //
     vlePlan       *mPlan;
     int            mMaxWidth;
