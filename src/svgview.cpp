@@ -7,6 +7,7 @@
  */
 #include <QFile>
 #include <QGraphicsSvgItem>
+#include <QScrollBar>
 #include <QtXml>
 #include <QtXmlPatterns>
 #include <QXmlStreamReader>
@@ -56,7 +57,7 @@ void SvgView::convert(const QString &xsltFile)
     query.setQuery(QUrl(xsltFile));
     query.evaluateTo(&qOut);
 
-    qInfo() << qOut;
+    qWarning() << qOut;
 }
 
 QString SvgView::getTplHeader(void)
@@ -85,7 +86,7 @@ QString SvgView::getTplTime(void)
 
 void SvgView::loadPlan(vlePlan *plan)
 {
-    qInfo() << "SvgView::loadPlan";
+    qWarning() << "SvgView::loadPlan";
 
     if ( mTplHeader.isNull() )
     {
@@ -95,14 +96,13 @@ void SvgView::loadPlan(vlePlan *plan)
     }
 
     // Compute the height of a group
-    int groupHeight;
     if (mTplHeader.hasAttribute("height"))
-        groupHeight = mTplHeader.attribute("height").toDouble();
+        mGroupHeight = mTplHeader.attribute("height").toDouble();
     else
-        groupHeight = 100;
+        mGroupHeight = 100;
 
     // Compute size of the whole plan
-    int planHeight = groupHeight * (1 + plan->countGroups());
+    int planHeight = mGroupHeight * (1 + plan->countGroups());
     int planWidth  = (mMaxWidth * mZoomLevel);
 
     // Create SVG document
@@ -128,7 +128,7 @@ void SvgView::loadPlan(vlePlan *plan)
 
     if (plan != mPlan)
     {
-    qInfo() << "Plan period is from" << dateStart.toString("dd/MM/yyyy")
+    qWarning() << "Plan period is from" << dateStart.toString("dd/MM/yyyy")
             << "to" << dateEnd.toString("dd/MM/yyyy")
             << "(" << nbDays<< "days)"
             << "[" << mPixelPerDay << "pixel per day]";
@@ -219,7 +219,7 @@ void SvgView::loadPlan(vlePlan *plan)
         // Create a new Group
         QDomElement newGrp = mTplHeader.cloneNode().toElement();
         updateField(newGrp, "{{name}}", planGroup->getName());
-        updatePos  (newGrp, 0, ((i + 1) * groupHeight));
+        updatePos  (newGrp, 0, ((i + 1) * mGroupHeight));
         updateAttr (newGrp, "header_background", "width", QString::number(planWidth));
 
         for (int j = 0; j < planGroup->count(); j++)
@@ -283,7 +283,7 @@ void SvgView::loadPlan(vlePlan *plan)
 
 void SvgView::loadFile(QString fileName)
 {
-    qInfo() << "SVG load file " << fileName;
+    qWarning() << "SVG load file " << fileName;
 
     mFilename = fileName;
 
@@ -358,7 +358,7 @@ void SvgView::refresh(void)
     mGraphicItem->setZValue(0);
     mGraphicItem->sceneTransform().translate(0, 100);
 
-    qInfo() << "SVG refresh() zoom factor" << mZoomLevel;
+    qWarning() << "SVG refresh() zoom factor" << mZoomLevel;
 
     s->addItem(mGraphicItem);
     //s->setSceneRect(0,0, 0,0);
@@ -408,6 +408,42 @@ void SvgView::setConfig(QString c, QString key, QString value)
 void SvgView::setZommFactor(qreal factor)
 {
     mZoomFactor = factor;
+}
+
+void SvgView::mouseMoveEvent(QMouseEvent *event)
+{
+    // Search the group at the current mouse Y
+    QPoint pos = event->pos();
+    int mouseGroup = pos.y() / mGroupHeight;
+    // If mouse is outside the plan, nothing to do
+    if ( (mouseGroup == 0) ||
+         (mouseGroup > mPlan->countGroups()) )
+        return;
+
+    vlePlanGroup *planGroup = mPlan->getGroup(mouseGroup - 1);
+    QDate dateStart = mPlan->dateStart();
+
+    // Get mouse X position
+    int currentX = horizontalScrollBar()->value() + pos.x();
+    int mouseTimePos = (currentX - 120);
+
+    // Search if the mouse is over one acivity of the current group
+    for (int j = 0; j < planGroup->count(); j++)
+    {
+        vlePlanActivity *planActivity = planGroup->getActivity(j);
+        // Convert activity date to "days from the begining of the plan"
+        int dataOffsetStart = dateStart.daysTo(planActivity->dateStart());
+        int dateOffsetEnd   = dateStart.daysTo(planActivity->dateEnd());
+        // Convert this number of days to pixels/coordinates
+        int startPos = (dataOffsetStart * mPixelPerDay * mZoomLevel);
+        int endPos   = (dateOffsetEnd   * mPixelPerDay * mZoomLevel);
+        // Compare activity start/end to the current mouse position
+        if ( (mouseTimePos >= startPos) &&
+             (mouseTimePos <= endPos) )
+        {
+            qWarning() << planActivity->getName();
+        }
+    }
 }
 
 void SvgView::wheelEvent(QWheelEvent* event)

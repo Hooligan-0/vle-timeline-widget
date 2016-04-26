@@ -11,6 +11,7 @@
 #include <QGraphicsView>
 #include <QSvgRenderer>
 #include <QtXml>
+#include <QMouseEvent>
 #include <QWheelEvent>
 #include "vlePlan.h"
 
@@ -50,6 +51,7 @@ private:
     void updateField(QDomNode    &e, QString tag,  QString value);
     void updatePos  (QDomElement &e, int x, int y);
 protected:
+    void mouseMoveEvent(QMouseEvent *event);
     void wheelEvent(QWheelEvent* event);
 private:
     // Widget variables
@@ -67,6 +69,8 @@ private:
     qreal          mPixelPerDay;
     qreal          mZoomFactor;
     qreal          mZoomLevel;
+    int            mGroupHeight;
+
     QList<SvgViewConfig *> mConfig;
 
     // Debug and temporary
