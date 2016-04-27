@@ -108,6 +108,7 @@ void vlePlan::loadFile(const QString &filename)
     QFile file(filename);
     int lineCount;
     bool hasClass = false;
+    int  attrCount = 0;
 
     file.open(QIODevice::ReadOnly);
 
@@ -126,7 +127,10 @@ void vlePlan::loadFile(const QString &filename)
             if (fields.count() < 4)
                 break;
             if (fields.count() > 4)
+            {
                 hasClass = true;
+                attrCount = (fields.count() - 5);
+            }
             // Clear current plan (if any previously loaded)
             clear();
             lineCount++;
@@ -160,6 +164,13 @@ void vlePlan::loadFile(const QString &filename)
         a->setClass(type);
         a->setStart(QDate::fromString(startDate, Qt::ISODate));
         a->setEnd  (QDate::fromString(endDate,   Qt::ISODate));
+
+        // Process additional attributes
+        for (int j = 0; j < attrCount; j++)
+        {
+            QString attr( fields.at(j + 5) );
+            a->addAttribute(attr);
+        }
 
         lineCount++;
     }
@@ -220,6 +231,16 @@ vlePlanActivity::~vlePlanActivity()
     // Nothing to do
 }
 
+void vlePlanActivity::addAttribute(QString value)
+{
+    mAttributes.append(value);
+}
+
+int vlePlanActivity::attributeCount(void)
+{
+    return mAttributes.size();
+}
+
 QDate vlePlanActivity::dateEnd(void)
 {
     return mDateEnd;
@@ -228,6 +249,14 @@ QDate vlePlanActivity::dateEnd(void)
 QDate vlePlanActivity::dateStart(void)
 {
     return mDateStart;
+}
+
+QString vlePlanActivity::getAttribute(int pos)
+{
+    if ((pos + 1) > mAttributes.size())
+        return QString();
+
+    return mAttributes.at(pos);
 }
 
 QString vlePlanActivity::getClass(void)

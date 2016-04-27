@@ -441,7 +441,15 @@ void SvgView::mouseMoveEvent(QMouseEvent *event)
         if ( (mouseTimePos >= startPos) &&
              (mouseTimePos <= endPos) )
         {
-            qWarning() << planActivity->getName();
+            if ( planActivity->attributeCount() )
+            {
+                for (int k = 0; k < planActivity->attributeCount(); k++)
+                {
+                    qWarning() << planActivity->getAttribute(k);
+                }
+            }
+            else
+                qWarning() << planActivity->getName();
         }
     }
 }

@@ -16,8 +16,11 @@ class vlePlanActivity
 public:
     vlePlanActivity (QString name);
     ~vlePlanActivity();
+    void    addAttribute(QString value);
+    int     attributeCount(void);
     QDate   dateEnd   (void);
     QDate   dateStart (void);
+    QString getAttribute(int pos);
     QString getClass(void);
     QString getName (void);
     void    setClass(QString c);
@@ -29,6 +32,7 @@ private:
     QString mClass;
     QDate   mDateStart;
     QDate   mDateEnd;
+    QList<QString> mAttributes;
 };
 
 class vlePlanGroup
