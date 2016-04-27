@@ -8,6 +8,7 @@
 #include <QFile>
 #include <QGraphicsSvgItem>
 #include <QScrollBar>
+#include <QToolTip>
 #include <QtXml>
 #include <QtXmlPatterns>
 #include <QXmlStreamReader>
@@ -418,7 +419,11 @@ void SvgView::mouseMoveEvent(QMouseEvent *event)
     // If mouse is outside the plan, nothing to do
     if ( (mouseGroup == 0) ||
          (mouseGroup > mPlan->countGroups()) )
+    {
+        if (QToolTip::isVisible())
+            QToolTip::hideText();
         return;
+    }
 
     vlePlanGroup *planGroup = mPlan->getGroup(mouseGroup - 1);
     QDate dateStart = mPlan->dateStart();
@@ -441,27 +446,22 @@ void SvgView::mouseMoveEvent(QMouseEvent *event)
         if ( (mouseTimePos >= startPos) &&
              (mouseTimePos <= endPos) )
         {
-            if ( planActivity->attributeCount() )
+            if ( ( planActivity->attributeCount() ) &&
+                 ( ! QToolTip::isVisible()) )
             {
+                QString newMsg(planActivity->getName());
+
                 for (int k = 0; k < planActivity->attributeCount(); k++)
-                {
-                    qWarning() << planActivity->getAttribute(k);
-                }
+                    newMsg += "\n" + planActivity->getAttribute(k);
+                QRect tipPos(pos.x() - 10, pos.y() - 10, 20, 20);
+                QToolTip::showText(event->globalPos(), newMsg, this, tipPos);
             }
-            else
-                qWarning() << planActivity->getName();
         }
     }
 }
 
 void SvgView::wheelEvent(QWheelEvent* event)
 {
-#ifdef SCALE_IMAGE
-    if(event->delta() > 0)
-        scale(mZoomFactor, 1);
-    else
-        scale(1.0 / mZoomFactor, 1);
-#else
     if(event->delta() > 0)
         mZoomLevel = (mZoomLevel * mZoomFactor);
     else
@@ -471,7 +471,6 @@ void SvgView::wheelEvent(QWheelEvent* event)
     }
 
     loadPlan(mPlan);
-#endif
 }
 
 void SvgView::updateAttr(QDomNode &node, QString selector, QString tag, QString value, bool replace)
