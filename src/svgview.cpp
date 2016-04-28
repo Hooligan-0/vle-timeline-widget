@@ -347,22 +347,17 @@ bool SvgView::loadTemplate(QString fileName)
 void SvgView::refresh(void)
 {
     QGraphicsScene *s = scene();
+    QPixmap Image(mSvgRenderer->defaultSize());
+    QPainter Painter;
 
-    s->clear();
-
-    QGraphicsSvgItem * item = new QGraphicsSvgItem();
-    item->setSharedRenderer(mSvgRenderer);
-
-    mGraphicItem = item;
-    mGraphicItem->setFlags(QGraphicsItem::ItemClipsToShape);
-    mGraphicItem->setCacheMode(QGraphicsItem::NoCache);
-    mGraphicItem->setZValue(0);
-    mGraphicItem->sceneTransform().translate(0, 100);
+    Image.fill(Qt::transparent);
 
     qWarning() << "SVG refresh() zoom factor" << mZoomLevel;
-
-    s->addItem(mGraphicItem);
-    //s->setSceneRect(0,0, 0,0);
+    Painter.begin(&Image);
+    mSvgRenderer->render(&Painter);
+    Painter.end();
+    s->clear();
+    s->addPixmap(Image);
 }
 
 QString SvgView::getConfig(QString c, QString key)
