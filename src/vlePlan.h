@@ -47,6 +47,7 @@ public:
     int     count(void);
     vlePlanActivity *addActivity(QString name);
     vlePlanActivity *getActivity(int pos);
+    void    sort(void);
 private:
     QDate   mDateEnd;    // Cache for the lastest "end date" of group activities
     QDate   mDateStart;  // Cache for the earliest "start date"of group activities

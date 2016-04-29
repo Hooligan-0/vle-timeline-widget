@@ -176,6 +176,12 @@ void vlePlan::loadFile(const QString &filename)
     }
     file.close();
 
+    for (int i = 0; i < mGroups.size(); i++)
+    {
+        vlePlanGroup *grp = mGroups.at(i);
+        grp->sort();
+    }
+
     // If (at least) one group has been loaded ...
     if (countGroups() > 0)
         // ... then, Plan is now valid
@@ -402,4 +408,14 @@ vlePlanActivity *vlePlanGroup::getActivity(int pos)
         return NULL;
 
     return mActivities.at(pos);
+}
+
+bool sortActivityDate(vlePlanActivity *v1, vlePlanActivity *v2)
+{
+    return v1->dateStart() < v2->dateStart();
+}
+
+void vlePlanGroup::sort(void)
+{
+    std::sort(mActivities.begin(), mActivities.end(), sortActivityDate);
 }

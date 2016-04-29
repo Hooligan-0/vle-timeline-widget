@@ -216,6 +216,9 @@ void SvgView::loadPlan(vlePlan *plan)
     for (int i=0; i < plan->countGroups(); i++)
     {
         vlePlanGroup *planGroup = plan->getGroup(i);
+        vlePlanActivity *prevActivity = 0;
+        int prevLen = 0;
+        int prevOffset = 0;
 
         // Create a new Group
         QDomElement newGrp = mTplHeader.cloneNode().toElement();
@@ -252,8 +255,23 @@ void SvgView::loadPlan(vlePlan *plan)
             int date = dateStart.daysTo(planActivity->dateStart());
             int aPos = (date * mPixelPerDay * mZoomLevel);
 
+            if (prevActivity)
+            {
+                if (prevLen > aPos)
+                {
+                    if (prevOffset < 40)
+                        prevOffset += 15;
+                    updateAttr(newAct, "activity_name", "y", QString::number(prevOffset));
+                }
+                else
+                    prevOffset = 15;
+            }
+
             updatePos(newAct, aPos, 0);
             newGrp.appendChild(newAct);
+
+            prevActivity = planActivity;
+            prevLen = aPos + (planActivity->getName().size() * 8);
         }
 
         e.appendChild(newGrp);
