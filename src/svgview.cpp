@@ -27,17 +27,6 @@ SvgView::SvgView(QWidget *parent)
 
     mSvgRenderer = new QSvgRenderer();
 
-    // Prepare background check-board pattern
-    QPixmap tilePixmap(64, 64);
-    tilePixmap.fill(Qt::white);
-    QPainter tilePainter(&tilePixmap);
-    QColor color(220, 220, 220);
-    tilePainter.fillRect(0, 0, 32, 32, color);
-    tilePainter.fillRect(32, 32, 32, 32, color);
-    tilePainter.end();
-
-    setBackgroundBrush(tilePixmap);
-
     mPlan = NULL;
     mPixelPerDay = 1;
     mZoomFactor  = 1.15;
