@@ -140,9 +140,6 @@ void vlePlan::loadFile(const QString &filename)
         if (fields.count() < 4)
             continue;
 
-        // Copy values into named strings (poor perf but usefull during dev)
-        QString activityName( fields.at(0) );
-        QString groupName   ( fields.at(1) );
         QString type;
         QString startDate;
         QString endDate;
@@ -159,8 +156,8 @@ void vlePlan::loadFile(const QString &filename)
         }
 
         // Save the activity into the vlePlan
-        vlePlanGroup    *g = getGroup(groupName, true);
-        vlePlanActivity *a = g->addActivity(activityName);
+        vlePlanGroup    *g = getGroup(fields.at(1), true);
+        vlePlanActivity *a = g->addActivity(fields.at(0));
         a->setClass(type);
         a->setStart(QDate::fromString(startDate, Qt::ISODate));
         a->setEnd  (QDate::fromString(endDate,   Qt::ISODate));
