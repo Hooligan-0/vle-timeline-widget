@@ -14,11 +14,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     svgview.cpp \
-    vlePlan.cpp
+    vlePlan.cpp \
+    svgconfig.cpp
 
 HEADERS  += mainwindow.h \
     svgview.h \
-    vlePlan.h
+    vlePlan.h \
+    svgconfig.h
 
 FORMS    += mainwindow.ui
 

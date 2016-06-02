@@ -27,11 +27,6 @@ private slots:
     void buttonLoadCSV(bool c);
     void buttonLoadSVG(bool c);
     void buttonConvert(bool c);
-    void cfgColorSelectionChange();
-    void buttonCfgColorAdd   (void);
-    void buttonCfgColorRemove(void);
-    void buttonCfgColorPicker(void);
-    void buttonCfgColorSet   (void);
 
 private:
     Ui::MainWindow *ui;
