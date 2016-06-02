@@ -142,17 +142,14 @@ void svgConfig::setView(SvgView *view)
 void svgConfig::setupUi(void)
 {
     QVBoxLayout *vLayoutMain;
-    QHBoxLayout *hLayoutButtons;
+
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     // Create a Vertical layout for all controls
     vLayoutMain = new QVBoxLayout(this);
     vLayoutMain->setSpacing(6);
     vLayoutMain->setContentsMargins(11, 11, 11, 11);
     vLayoutMain->setObjectName(QStringLiteral("vLayout_main"));
-    // Create an horizontal layout for buttons
-    hLayoutButtons = new QHBoxLayout();
-    hLayoutButtons->setSpacing(6);
-    hLayoutButtons->setObjectName(QStringLiteral("hLayoutButtons"));
 
     // Create a table for the color list
     mUiColorTable = new QTableWidget(this);
@@ -163,13 +160,13 @@ void svgConfig::setupUi(void)
     mUiColorTable->horizontalHeader()->setStretchLastSection(true);
     mUiColorTable->verticalHeader()->setVisible(false);
     clear();
-    //
-    QPushButton *pbAdd;
-    pbAdd = new QPushButton(this);
-    pbAdd->setObjectName(QStringLiteral("buttonAdd"));
-    pbAdd->setText("Add");
-    // Insert controls into layouts
-    hLayoutButtons->addWidget(pbAdd);
     vLayoutMain->addWidget(mUiColorTable);
-    vLayoutMain->addLayout(hLayoutButtons);
+
+#ifdef UI_EXTEND
+    QHBoxLayout *hLayoutButtons;
+    // Create an horizontal layout for additional controls
+    hLayoutButtons = new QHBoxLayout();
+    hLayoutButtons->setSpacing(6);
+    hLayoutButtons->setObjectName(QStringLiteral("hLayoutExtend"));
+#endif
 }
