@@ -76,7 +76,10 @@ void svgConfig::colorSelectionEdit(int row, int col)
 
         // Update Plan viewer (if view available)
         if (mViewWidget)
+        {
             mViewWidget->setConfig("color", nameItem->text(), colorItem->text());
+            mViewWidget->reload();
+        }
     }
 }
 

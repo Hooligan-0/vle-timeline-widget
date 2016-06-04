@@ -28,6 +28,7 @@ SvgView::SvgView(QWidget *parent)
     mSvgRenderer = new QSvgRenderer();
 
     mPlan = NULL;
+    mGroupHeight = 50;
     mPixelPerDay = 1;
     mZoomFactor  = 1.15;
     mZoomLevel   = 1;
@@ -367,6 +368,12 @@ void SvgView::refresh(void)
     s->addPixmap(Image);
 }
 
+void SvgView::reload(void)
+{
+    if (mPlan)
+        loadPlan(mPlan);
+}
+
 QString SvgView::getConfig(QString c, QString key)
 {
     SvgViewConfig *entry = NULL;
@@ -415,6 +422,9 @@ void SvgView::setZommFactor(qreal factor)
 
 void SvgView::mouseMoveEvent(QMouseEvent *event)
 {
+    if (mPlan == NULL)
+        return;
+
     // Search the group at the current mouse Y
     QPoint pos = event->pos();
     int mouseGroup = pos.y() / mGroupHeight;

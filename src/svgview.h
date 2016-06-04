@@ -43,6 +43,7 @@ public:
     void loadFile(QString fileName);
     bool loadTemplate(QString fileName);
     void refresh (void);
+    void reload  (void);
     QString getConfig(QString c, QString key);
     void    setConfig(QString c, QString key, QString value);
     void setZommFactor(qreal factor);
